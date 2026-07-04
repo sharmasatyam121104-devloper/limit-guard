@@ -1,5 +1,5 @@
 import { Router } from "express";
-import dtoMiddleware from "../../middleware/DtoMiddleware ";
+import dtoMiddleware from "../../middleware/dtoMiddleware ";
 
 import { signup } from "./user.controller";
 import { signupDtoSchema } from "./user.dto";
