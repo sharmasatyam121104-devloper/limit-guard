@@ -11,3 +11,9 @@ export interface UserInterface {
 export interface SignupResponseInterface {
     message: string
 }
+
+export interface LoginResponseInterface {
+    message: string,
+    access_token: string,
+    refresh_token : string
+}
