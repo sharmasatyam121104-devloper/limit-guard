@@ -5,6 +5,7 @@ import UserModel from "./user.model"
 import { SignupDto } from "./user.dto"
 import { LoginResponseInterface, SignupResponseInterface } from "./user.interface"
 import genrateAccessToken from "./utils/genrateAccessToken"
+import redis from "../../config/redis.config"
 
 //signup with local
 export const signup = async(body: SignupDto): Promise<SignupResponseInterface>=>{
@@ -45,7 +46,18 @@ export const login = async(body: SignupDto): Promise<LoginResponseInterface>=>{
         last_login: Date.now()
     }
 
-    await UserModel.findByIdAndUpdate(user._id, userPayload)
+    // await UserModel.findByIdAndUpdate(user._id, userPayload)
+    await Promise.all([
+        UserModel.findByIdAndUpdate(user._id, userPayload),
+        redis.pipeline()
+        .hset(`session:${user._id}`, {
+            "refresh_token": refresh_token_hash,
+            "email": user.email,
+            "login_at": Date.now().toString()
+        })
+        .expire(`session:${user._id}`, process.env.REFRESH_TOKEN_EXPIRES || 604800)
+        .exec()
+    ])
 
     return {
         message: "User login successfully",
