@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 export interface UserInterface {
     email: string;
     fullname: string;
@@ -8,6 +10,12 @@ export interface UserInterface {
     auth_provider?: "google" | "local"
 }
 
+export interface SessionInterface extends Request{
+    userId?: string;
+    email?: string;
+    role?: string;
+}
+
 export interface SignupResponseInterface {
     message: string
 }
@@ -16,4 +24,8 @@ export interface LoginResponseInterface {
     message: string,
     access_token: string,
     refresh_token : string
+}
+
+export interface UpadteProfileResponseInterface {
+    message: string
 }
