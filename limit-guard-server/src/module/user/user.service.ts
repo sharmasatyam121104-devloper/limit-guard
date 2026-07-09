@@ -46,18 +46,7 @@ export const login = async(body: LoginDto): Promise<LoginResponseInterface>=>{
         last_login: Date.now()
     }
 
-    await Promise.all([
-        UserModel.findByIdAndUpdate(user._id, userPayload),
-        redis.pipeline()
-        .hset(`session:${user._id}`, {
-            "refresh_token": refresh_token_hash,
-            "email": user.email,
-            "login_at": Date.now().toString(),
-            "role": user.role,
-        })
-        .expire(`session:${user._id}`, process.env.REDIS_SESSION_TTL || 604800)
-        .exec()
-    ])
+    await UserModel.findByIdAndUpdate(user._id, userPayload)
 
     return {
         message: "User login successfully",
@@ -67,30 +56,32 @@ export const login = async(body: LoginDto): Promise<LoginResponseInterface>=>{
 }
 
 export const update_profile = async (body: updateProfileDto, userId: string): Promise<UpadteProfileResponseInterface> => {
-  const { fullname, profile_image_url } = body;
+    const { fullname, profile_image_url } = body;
 
-  if(!fullname && !profile_image_url){
-    throw createError(200, "No changes detected. Data is already up to date.")
-  }
-
-  const user = await UserModel.findByIdAndUpdate(userId,
-    {
-      fullname,
-      profile_image_url,
-    },
-    {
-      new: true,
-      runValidators: true,
+    if (fullname === undefined && profile_image_url === undefined) {
+        throw createError(400, "No changes detected.");
     }
-  );
 
-  if (!user) {
-    throw createError(404, "User not found.");
-  }
+    const user = await UserModel.findByIdAndUpdate(userId,
+        {
+        fullname,
+        profile_image_url,
+        },
+        {
+        new: true,
+        runValidators: true,
+        }
+    ).select("-password -refresh_token");
 
-  return {
-    message: "Profile updated successfully.",
-  };
+    if (!user) {
+        throw createError(404, "User not found.");
+    }
+
+    await redis.del(`user:${userId}`);
+
+    return {
+        message: "Profile updated successfully.",
+    };
 };
 
 export const rotate_token = async(refresh_token: string): Promise<RotateTokenResponseInterface>=>{
@@ -114,14 +105,25 @@ export const rotate_token = async(refresh_token: string): Promise<RotateTokenRes
     await user.save()
 
     return {
-        message: "Token rotate successfully.",
+        message: "Token rotated successfully.",
         access_token,
         refresh_token
     }
 }
 
 export const getMe = async(userId: string): Promise<GetMeResponseInterface>=>{
+    const cacheKey = `user:${userId}`
+    const cachedUser = await redis.get(cacheKey)
+    if(cachedUser){
+       return {data: JSON.parse(cachedUser)}
+    }
+
     const myData = await UserModel.findById(userId).select("-password -refresh_token")
+    if (!myData) {
+        throw createError(404, "User not found.");
+    }
+
+    await redis.set(cacheKey, JSON.stringify(myData), "EX", 300)
     return {data:myData}
 }
 
@@ -131,6 +133,7 @@ export const logout = async(userId: string, access_token: string): Promise<Logou
     if(!logoutData){
         throw createError(401, "Unauthorized Access.");
     }
+    
     const TOKEN_EXPIRY = 15 * 60; 
 
     const lastLogin = logoutData.last_login.getTime();
@@ -139,12 +142,13 @@ export const logout = async(userId: string, access_token: string): Promise<Logou
     const elapsedSeconds = Math.floor((currentTime - lastLogin) / 1000);
 
     const ttl = Math.max(0, TOKEN_EXPIRY - elapsedSeconds);
+        if (ttl > 0) {
+            await redis.set(`blacklist:${access_token}`, "true", "EX", ttl);
+        }
 
-    await Promise.all([
-        redis.set(`blacklist:${access_token}`, "true", "EX", ttl),
-        redis.del(`session:${userId}`)
-    ])
-    return {
-        message: "User logout successfully."
-    }
+        await redis.del(`session:${userId}`);
+
+        return {
+            message: "User logged out successfully.",
+        };
 }
