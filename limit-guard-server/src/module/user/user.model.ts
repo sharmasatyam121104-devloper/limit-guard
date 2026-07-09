@@ -37,6 +37,10 @@ const userSchema = new Schema<UserInterface>({
         type: String,
         enum: ["google", "local"],
         default: "local"
+    },
+    role: {
+        type: String,
+        default: "USER"
     }
 
 },{timestamps: true})

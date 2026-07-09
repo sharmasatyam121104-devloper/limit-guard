@@ -3,7 +3,7 @@ import bcrypt from "bcrypt"
 import crypto from "crypto"
 import UserModel from "./user.model"
 import { LoginDto, SignupDto, updateProfileDto } from "./user.dto"
-import { GetMeResponseInterface, LoginResponseInterface, RotateTokenResponseInterface, SignupResponseInterface, UpadteProfileResponseInterface } from "./user.interface"
+import { GetMeResponseInterface, LoginResponseInterface, LogoutResponseInterface, RotateTokenResponseInterface, SignupResponseInterface, UpadteProfileResponseInterface } from "./user.interface"
 import genrateAccessToken from "./utils/genrateAccessToken"
 import redis from "../../config/redis.config"
 
@@ -55,7 +55,7 @@ export const login = async(body: LoginDto): Promise<LoginResponseInterface>=>{
             "login_at": Date.now().toString(),
             "role": user.role,
         })
-        .expire(`session:${user._id}`, process.env.REFRESH_TOKEN_EXPIRES || 604800)
+        .expire(`session:${user._id}`, process.env.REDIS_SESSION_TTL || 604800)
         .exec()
     ])
 
@@ -123,4 +123,17 @@ export const rotate_token = async(refresh_token: string): Promise<RotateTokenRes
 export const getMe = async(userId: string): Promise<GetMeResponseInterface>=>{
     const myData = await UserModel.findById(userId).select("-password -refresh_token")
     return myData
+}
+
+
+export const logout = async(userId: string): Promise<LogoutResponseInterface>=>{
+    const logoutData = await UserModel.findByIdAndUpdate(userId, {refresh_token: null})
+    if(!logoutData){
+        throw createError(401, "Unauthorized Access.");
+    }
+
+    await redis.del(`session:${userId}`);
+    return {
+        message: "User logout successfully."
+    }
 }

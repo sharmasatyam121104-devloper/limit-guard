@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import asyncHandler from "../../middleware/asyncHandler";
 import * as userService from './user.service'
-import { setAccessAndRefreshToken } from "./utils/cokkies.utils";
+import { clearAccessAndRefreshToken, setAccessAndRefreshToken } from "./utils/cokkies.utils";
 import { SessionInterface } from "./user.interface";
 
 export const signup = asyncHandler(async(req: Request, res: Response)=>{
@@ -35,4 +35,13 @@ export const getMe = asyncHandler(async(req: SessionInterface, res: Response)=>{
     const userId = req?.userId;
     const data = await userService.getMe(userId!)
     res.json(data)
+})
+
+export const logout = asyncHandler(async(req: SessionInterface, res: Response)=>{
+    const userId = req.userId;
+    const data = await userService.logout(userId!)
+    if(data){
+        clearAccessAndRefreshToken(res)
+        res.json(data)
+    }
 })

@@ -7,7 +7,8 @@ export interface UserInterface {
     refresh_token?: string;
     last_login?: Date;
     profile_image_url?: string;
-    auth_provider?: "google" | "local"
+    auth_provider?: "google" | "local",
+    role: "USER"
 }
 
 export interface UserProfileInterface {
@@ -51,4 +52,8 @@ export interface RotateTokenResponseInterface {
     message: string,
     access_token: string,
     refresh_token : string
+}
+
+export interface LogoutResponseInterface {
+    message: string
 }
