@@ -29,6 +29,13 @@ export const updateProfileDtoSchema = z.preprocess(
 );
 
 
+export const rotateTokenCookiesSchema = z.object({
+  refresh_token: z.string().min(1, "Refresh token is required."),
+}).strict();
+
+
+
 export type SignupDto = z.infer<typeof signupDtoSchema>
 export type LoginDto = z.infer<typeof loginDtoSchema>
 export type updateProfileDto = z.infer<typeof updateProfileDtoSchema>
+export type RotateTokenDto = z.infer<typeof rotateTokenCookiesSchema>;

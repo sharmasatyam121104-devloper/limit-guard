@@ -3,7 +3,7 @@ import bcrypt from "bcrypt"
 import crypto from "crypto"
 import UserModel from "./user.model"
 import { LoginDto, SignupDto, updateProfileDto } from "./user.dto"
-import { LoginResponseInterface, SignupResponseInterface, UpadteProfileResponseInterface } from "./user.interface"
+import { GetMeResponseInterface, LoginResponseInterface, RotateTokenResponseInterface, SignupResponseInterface, UpadteProfileResponseInterface } from "./user.interface"
 import genrateAccessToken from "./utils/genrateAccessToken"
 import redis from "../../config/redis.config"
 
@@ -93,18 +93,17 @@ export const update_profile = async (body: updateProfileDto, userId: string): Pr
   };
 };
 
-export const rotate_token = async(body: any, cookies: any)=>{
-    let {refresh_token} = cookies;
-    if(!refresh_token){
-        throw createError(404, "refresh_token not found.")
+export const rotate_token = async(refresh_token: string): Promise<RotateTokenResponseInterface>=>{
+    if (!refresh_token) {
+        throw createError(401, "Refresh token not found.");
     }
 
     let refresh_token_hash = crypto.createHash("sha256").update(refresh_token).digest("hex")
 
-    const user = await UserModel.findById(body.userId)
+    const user = await UserModel.findOne({refresh_token: refresh_token_hash})
 
-    if(refresh_token_hash !== user.refresh_token){
-        throw createError(401, "Invalid Refresh Token.")
+    if (!user) {
+        throw createError(401, "Invalid refresh token.");
     }
 
     const access_token =  genrateAccessToken(user._id, user.email)
@@ -112,11 +111,16 @@ export const rotate_token = async(body: any, cookies: any)=>{
     refresh_token_hash = crypto.createHash("sha256").update(refresh_token).digest("hex")
 
     user.refresh_token = refresh_token_hash;
-    user.save()
+    await user.save()
 
     return {
         message: "Token rotate successfully.",
         access_token,
         refresh_token
     }
+}
+
+export const getMe = async(userId: string): Promise<GetMeResponseInterface>=>{
+    const myData = await UserModel.findById(userId).select("-password -refresh_token")
+    return myData
 }

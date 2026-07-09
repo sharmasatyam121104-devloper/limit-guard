@@ -25,9 +25,14 @@ export const update_profile = asyncHandler(async(req: SessionInterface, res: Res
 })
 
 export const rotate_token = asyncHandler(async(req: Request, res: Response)=>{
-    const cokkies = req.cookies;
-    const body = req.body;
-    const data = await userService.rotate_token(cokkies, body)
+    const refresh_token = req.cookies.refresh_token;
+    const data = await userService.rotate_token(refresh_token)
     setAccessAndRefreshToken(res, data.access_token, data.refresh_token);
+    res.json({message: data?.message})
+})
+
+export const getMe = asyncHandler(async(req: SessionInterface, res: Response)=>{
+    const userId = req?.userId;
+    const data = await userService.getMe(userId!)
     res.json(data)
 })

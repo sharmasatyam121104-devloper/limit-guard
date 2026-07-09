@@ -10,6 +10,22 @@ export interface UserInterface {
     auth_provider?: "google" | "local"
 }
 
+export interface UserProfileInterface {
+  _id: string;
+  email: string;
+  fullname: string;
+  last_login: string;
+  profile_image_url: string;
+  auth_provider: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface GetMeResponseInterface {
+  data: UserProfileInterface | null;
+}
+
 export interface SessionInterface extends Request{
     userId?: string;
     email?: string;
@@ -28,4 +44,11 @@ export interface LoginResponseInterface {
 
 export interface UpadteProfileResponseInterface {
     message: string
+}
+
+
+export interface RotateTokenResponseInterface {
+    message: string,
+    access_token: string,
+    refresh_token : string
 }
