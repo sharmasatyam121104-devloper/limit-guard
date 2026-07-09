@@ -3,6 +3,7 @@ import asyncHandler from "./asyncHandler";
 import createError from "../utils/createError";
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { SessionInterface } from "../module/user/user.interface";
+import redis from "../config/redis.config";
 
 
 interface AuthPayload extends JwtPayload {
@@ -17,6 +18,17 @@ const authMiddleware = asyncHandler (async(req: SessionInterface, res: Response,
 
     if(!access_token){
         throw createError(404, "access_token not found.")
+    }
+
+    const isBlacklisted = await redis.get(
+        `blacklist:${access_token}`
+    );
+
+    if (isBlacklisted) {
+        return res.status(401).json({
+            success: false,
+            message: "Token has been revoked."
+        });
     }
 
     const decoded = jwt.verify(

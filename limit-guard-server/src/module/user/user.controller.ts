@@ -39,7 +39,8 @@ export const getMe = asyncHandler(async(req: SessionInterface, res: Response)=>{
 
 export const logout = asyncHandler(async(req: SessionInterface, res: Response)=>{
     const userId = req.userId;
-    const data = await userService.logout(userId!)
+    const access_token = req.cookies.access_token;
+    const data = await userService.logout(userId!, access_token)
     if(data){
         clearAccessAndRefreshToken(res)
         res.json(data)

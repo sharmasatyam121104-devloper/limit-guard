@@ -122,17 +122,28 @@ export const rotate_token = async(refresh_token: string): Promise<RotateTokenRes
 
 export const getMe = async(userId: string): Promise<GetMeResponseInterface>=>{
     const myData = await UserModel.findById(userId).select("-password -refresh_token")
-    return myData
+    return {data:myData}
 }
 
 
-export const logout = async(userId: string): Promise<LogoutResponseInterface>=>{
+export const logout = async(userId: string, access_token: string): Promise<LogoutResponseInterface>=>{
     const logoutData = await UserModel.findByIdAndUpdate(userId, {refresh_token: null})
     if(!logoutData){
         throw createError(401, "Unauthorized Access.");
     }
+    const TOKEN_EXPIRY = 15 * 60; 
 
-    await redis.del(`session:${userId}`);
+    const lastLogin = logoutData.last_login.getTime();
+    const currentTime = Date.now();
+
+    const elapsedSeconds = Math.floor((currentTime - lastLogin) / 1000);
+
+    const ttl = Math.max(0, TOKEN_EXPIRY - elapsedSeconds);
+
+    await Promise.all([
+        redis.set(`blacklist:${access_token}`, "true", "EX", ttl),
+        redis.del(`session:${userId}`)
+    ])
     return {
         message: "User logout successfully."
     }
