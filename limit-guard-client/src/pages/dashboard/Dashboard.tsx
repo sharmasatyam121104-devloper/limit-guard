@@ -1,107 +1,177 @@
-import {Play, BarChart2, Activity, CheckCircle2, XCircle, ChevronRight, Wifi } from 'lucide-react';
-import Header from './Header';
-import Sidebar from './Sidebar';
+import {
+  Play,
+  BarChart2,
+  Activity,
+  CheckCircle2,
+  XCircle,
+  ChevronRight,
+  Wifi,
+} from "lucide-react";
 
 const Dashboard = () => {
   return (
-    <div className="h-screen flex flex-col bg-[#F8FAFC]">
-      <Header />
+    <>
+      <header className="mb-6 sm:mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#111827]">
+            Hello, Satyam 👋
+          </h1>
+          <p className="text-sm sm:text-base text-[#6B7280]">
+            Here's what's happening with your API usage today.
+          </p>
+        </div>
+      </header>
 
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
+      {/* Dashboard Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+        {/* Current Status */}
+        <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 sm:p-6 shadow-sm">
+          <h3 className="mb-6 flex items-center gap-2 font-semibold">
+            <Activity className="h-5 w-5 text-[#4F46E5]" />
+            Current Status
+          </h3>
 
-        <main className="flex-1 overflow-y-auto p-8 ">
-          {/* Top Header */}
-          <header className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-2xl font-bold text-[#111827]">Hello, Satyam 👋</h1>
-              <p className="text-[#6B7280]">Here's what's happening with your API usage today.</p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[#6B7280]">Status</span>
+
+              <span className="rounded bg-[#DCFCE7] px-2 py-0.5 text-xs font-bold text-[#166534]">
+                Active
+              </span>
             </div>
 
-          </header>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[#6B7280]">Rate Limit</span>
 
-          {/* Dashboard Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Current Status */}
-            <div className="bg-white p-6 rounded-xl border border-[#E5E7EB] shadow-sm">
-              <h3 className="flex items-center gap-2 font-semibold mb-6"><Activity className="w-5 h-5 text-[#4F46E5]"/> Current Status</h3>
-              <div className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-[#6B7280]">Status</span> <span className="bg-[#DCFCE7] text-[#166534] px-2 py-0.5 rounded text-xs font-bold">Active</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#6B7280]">Rate Limit</span> <span className="font-semibold">10 / minute</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#6B7280]">Remaining Requests</span> <span className="font-semibold">6</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#6B7280]">Window Reset</span> <span className="font-semibold">42 sec</span>
-                </div>
-              </div>
+              <span className="font-semibold">10 / minute</span>
             </div>
 
-            {/* API Usage */}
-            <div className="bg-white p-6 rounded-xl border border-[#E5E7EB] shadow-sm">
-              <h3 className="flex items-center gap-2 font-semibold mb-6"><BarChart2 className="w-5 h-5 text-[#4F46E5]"/> Your API Usage</h3>
-              <div className="space-y-6">
-                <div className="flex justify-between">
-                  <span className="text-[#6B7280]">Total Requests Today</span> <span className="font-semibold text-lg">128</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#6B7280]">Blocked Requests</span> <span className="font-semibold text-[#EF4444]">3</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[#6B7280]">Most Used API</span> <span className="text-[#4F46E5] font-medium cursor-pointer">/products</span>
-                </div>
-              </div>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[#6B7280]">Remaining Requests</span>
+
+              <span className="font-semibold">6</span>
             </div>
 
-            {/* API Playground */}
-            <div className="bg-white p-6 rounded-xl border border-[#E5E7EB] shadow-sm">
-              <h3 className="flex items-center gap-2 font-semibold mb-6"><Play className="w-5 h-5 text-[#4F46E5]"/> API Playground</h3>
-              <div className="space-y-3">
-                {['/products', '/profile', '/orders', '/messages'].map((path) => (
-                  <div key={path} className="flex justify-between items-center border border-[#E5E7EB] p-3 rounded-lg hover:border-[#4F46E5] cursor-pointer transition-all">
-                    <span className="font-mono text-sm"><span className="text-[#4F46E5] font-bold">GET</span> {path}</span>
-                    <ChevronRight className="w-4 h-4 text-[#6B7280]" />
-                  </div>
-                ))}
-              </div>
-            </div>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[#6B7280]">Window Reset</span>
 
-            {/* Recent Activity */}
-            <div className="bg-white p-6 rounded-xl border border-[#E5E7EB] shadow-sm">
-              <h3 className="flex items-center gap-2 font-semibold mb-6"><Activity className="w-5 h-5 text-[#4F46E5]"/> Recent Activity</h3>
-              <div className="space-y-6">
-                {[
-                  { time: '10:20', path: '/products', status: 'ok' },
-                  { time: '10:23', path: '/products', status: 'blocked' },
-                ].map((act, i) => (
-                  <div key={i} className="flex items-center gap-4">
-                    <div className="text-xs text-[#6B7280] w-12">{act.time}</div>
-                    <div className="flex-1 font-mono text-sm"><span className="text-[#4F46E5]">GET</span> {act.path}</div>
-                    {act.status === 'ok' ? <CheckCircle2 className="w-5 h-5 text-[#22C55E]" /> : <XCircle className="w-5 h-5 text-[#EF4444]" />}
-                  </div>
-                ))}
-              </div>
+              <span className="font-semibold">42 sec</span>
             </div>
           </div>
+        </div>
 
-          {/* Live Status Footer */}
-          <div className="mt-6 bg-white p-6 rounded-xl border border-[#E5E7EB] shadow-sm flex gap-8">
-            <div className="flex items-center gap-2"><Wifi className="w-5 h-5 text-[#4F46E5]"/> <span className="font-semibold">Live Status</span></div>
-            <div className="flex gap-6 text-sm text-[#6B7280]">
-                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[#22C55E]"></div> Connected to Server</span>
-                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[#22C55E]"></div> Redis Status : Connected</span>
-                <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-[#22C55E]"></div> Socket Status : Connected</span>
+        {/* API Usage */}
+        <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 sm:p-6 shadow-sm">
+          <h3 className="mb-6 flex items-center gap-2 font-semibold">
+            <BarChart2 className="h-5 w-5 text-[#4F46E5]" />
+            Your API Usage
+          </h3>
+
+          <div className="space-y-6">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[#6B7280]">Total Requests Today</span>
+
+              <span className="text-lg font-semibold">128</span>
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[#6B7280]">Blocked Requests</span>
+
+              <span className="font-semibold text-[#EF4444]">3</span>
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[#6B7280]">Most Used API</span>
+
+              <span className="cursor-pointer font-medium text-[#4F46E5] break-all">
+                /products
+              </span>
             </div>
           </div>
+        </div>
 
-          <footer className="mt-8 text-center text-sm text-[#6B7280]">© 2025 adesGoaurd. All rights reserved.</footer>
-        </main>
+        {/* API Playground */}
+        <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 sm:p-6 shadow-sm">
+          <h3 className="mb-6 flex items-center gap-2 font-semibold">
+            <Play className="h-5 w-5 text-[#4F46E5]" />
+            API Playground
+          </h3>
+
+          <div className="space-y-3">
+            {["/products", "/profile", "/orders", "/messages"].map((path) => (
+              <div
+                key={path}
+                className="flex items-center justify-between gap-3 rounded-lg border border-[#E5E7EB] p-3 transition-all hover:border-[#4F46E5] cursor-pointer"
+              >
+                <span className="font-mono text-sm break-all">
+                  <span className="font-bold text-[#4F46E5]">GET</span> {path}
+                </span>
+
+                <ChevronRight className="h-4 w-4 shrink-0 text-[#6B7280]" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="rounded-xl border border-[#E5E7EB] bg-white p-4 sm:p-6 shadow-sm">
+          <h3 className="mb-6 flex items-center gap-2 font-semibold">
+            <Activity className="h-5 w-5 text-[#4F46E5]" />
+            Recent Activity
+          </h3>
+
+          <div className="space-y-6">
+            {[
+              { time: "10:20", path: "/products", status: "ok" },
+              { time: "10:23", path: "/products", status: "blocked" },
+            ].map((act, i) => (
+              <div key={i} className="flex items-center gap-3 sm:gap-4">
+                <div className="w-12 shrink-0 text-xs text-[#6B7280]">
+                  {act.time}
+                </div>
+
+                <div className="flex-1 break-all font-mono text-sm">
+                  <span className="text-[#4F46E5]">GET</span> {act.path}
+                </div>
+
+                {act.status === "ok" ? (
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-[#22C55E]" />
+                ) : (
+                  <XCircle className="h-5 w-5 shrink-0 text-[#EF4444]" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Live Status Footer */}
+      <div className="mt-6 rounded-xl border border-[#E5E7EB] bg-white p-4 sm:p-6 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex items-center gap-2">
+            <Wifi className="h-5 w-5 text-[#4F46E5]" />
+            <span className="font-semibold">Live Status</span>
+          </div>
+
+          <div className="flex flex-col gap-3 text-sm text-[#6B7280] sm:flex-row sm:flex-wrap sm:gap-6">
+            <span className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-[#22C55E]" />
+              Connected to Server
+            </span>
+
+            <span className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-[#22C55E]" />
+              Redis Status : Connected
+            </span>
+
+            <span className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-[#22C55E]" />
+              Socket Status : Connected
+            </span>
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
