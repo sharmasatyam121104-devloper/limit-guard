@@ -1,7 +1,102 @@
-const ApiPlayground = () => {
-  return (
-    <div>ApiPlayground</div>
-  )
-}
+import { useState } from "react";
+import { Play,  RefreshCw, Code2, Activity, ShieldAlert, Clock, Inbox } from "lucide-react";
 
-export default ApiPlayground
+const ApiPlayground = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [response, setResponse] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedUrl, setSelectedUrl] = useState("/v1/stats");
+
+  const endpoints = [
+    { label: "Statistics", path: "/v1/stats" },
+    { label: "User Usage", path: "/v1/usage" },
+    { label: "Profile Data", path: "/v1/profile" },
+    { label: "Rate Limits", path: "/v1/rate-limit" },
+  ];
+
+  const stats = [
+    { label: "Status", value: "Active", icon: Activity, color: "text-green-500" },
+    { label: "Rate Limit", value: "10 / min", icon: ShieldAlert, color: "text-indigo-500" },
+    { label: "Remaining", value: "6", icon: Inbox, color: "text-blue-500" },
+    { label: "Reset In", value: "42s", icon: Clock, color: "text-orange-500" },
+  ];
+
+  const fetchDummyData = async () => {
+    setLoading(true);
+    setTimeout(() => {
+      setResponse({
+        status: 200,
+        endpoint: selectedUrl,
+        data: { id: "6a4f5c871ef4837639a2bbab", message: "Success" }
+      });
+      setLoading(false);
+    }, 1000);
+  };
+
+  return (
+    <div className="p-4 md:p-8 max-w-5xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">API Playground</h1>
+        <p className="text-sm text-gray-500">Test and monitor your endpoint performance</p>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        {stats.map((stat, i) => (
+          <div key={i} className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-3">
+            <div className={`p-2 rounded-lg bg-gray-50 ${stat.color}`}>
+              <stat.icon size={20} />
+            </div>
+            <div>
+              <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">{stat.label}</p>
+              <p className="text-sm font-semibold text-gray-800">{stat.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Request Configuration */}
+        <div className="bg-white rounded-3xl border border-gray-200 shadow-sm p-6">
+          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Request Config</h3>
+          <div className="space-y-4">
+            {/* URL Selector Dropdown */}
+            <div className="flex gap-2">
+              <span className="px-3 py-2 bg-indigo-50 text-indigo-600 font-bold rounded-lg text-sm self-center">GET</span>
+              <select 
+                value={selectedUrl}
+                onChange={(e) => setSelectedUrl(e.target.value)}
+                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 outline-none focus:border-indigo-500"
+              >
+                {endpoints.map((ep) => (
+                  <option key={ep.path} value={ep.path}>{ep.label} ({ep.path})</option>
+                ))}
+              </select>
+            </div>
+            
+            <button 
+              onClick={fetchDummyData}
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition"
+            >
+              {loading ? <RefreshCw className="animate-spin" size={18} /> : <Play size={18} />}
+              {loading ? "Sending..." : "Send Request"}
+            </button>
+          </div>
+        </div>
+
+        {/* Response Box */}
+        <div className="bg-gray-900 rounded-3xl p-6 shadow-xl text-gray-300 font-mono text-sm overflow-hidden flex flex-col">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2 text-indigo-400"><Code2 size={18} /> <span>Response</span></div>
+          </div>
+          <pre className="overflow-x-auto text-xs md:text-sm">
+            {response ? JSON.stringify(response, null, 2) : <span className="text-gray-600 italic">// Select endpoint and hit send</span>}
+          </pre>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ApiPlayground;
