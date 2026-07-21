@@ -12,8 +12,12 @@ app.use(cookieParser())
 import notFound from "./middleware/notFound";
 import errorHandler from "./middleware/errorHandler";
 import UserRouter from "./module/user/user.route";
+import PlayGroundRouter from "./module/playGround/playGround.routes";
+import ActivityRouter from "./module/activity/activity.route";
 
 app.use('/user', UserRouter)
+app.use('/play-ground', PlayGroundRouter)
+app.use('/activity', ActivityRouter)
 app.use(notFound);
 app.use(errorHandler);
 
