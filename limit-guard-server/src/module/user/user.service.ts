@@ -46,12 +46,18 @@ export const login = async(body: LoginDto): Promise<LoginResponseInterface>=>{
         last_login: Date.now()
     }
 
-    await UserModel.findByIdAndUpdate(user._id, userPayload)
+    const updatedUser = await UserModel.findByIdAndUpdate(
+        user._id, 
+        userPayload, 
+        { new: true } // Update hone ke baad ka naya data return karega
+    )
+    .select("-password  -refresh_token");
 
     return {
         message: "User login successfully",
         access_token,
-        refresh_token
+        refresh_token,
+        user: updatedUser
     }
 }
 

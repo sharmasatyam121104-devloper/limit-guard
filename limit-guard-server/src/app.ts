@@ -2,10 +2,12 @@ import express from "express";
 const app = express()
 
 import cookieParser from "cookie-parser"
+import { corsOptions } from "./config/cors.config";
 
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser())
+app.use(corsOptions)
 
 
 

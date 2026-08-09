@@ -14,7 +14,7 @@ export const login = asyncHandler(async(req: Request, res: Response)=>{
     const body = req.body;
     const data = await userService.login(body)
     setAccessAndRefreshToken(res, data.access_token, data.refresh_token);
-    res.json({message: data?.message})
+    res.json({message: data?.message, userData: data?.user})
 })
 
 export const update_profile = asyncHandler(async(req: SessionInterface, res: Response)=>{

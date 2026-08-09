@@ -40,7 +40,8 @@ export interface SignupResponseInterface {
 export interface LoginResponseInterface {
     message: string,
     access_token: string,
-    refresh_token : string
+    refresh_token : string,
+    user: UserProfileInterface
 }
 
 export interface UpadteProfileResponseInterface {

@@ -16,8 +16,42 @@ import {
 } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
+import clientCatchError from '../../utils/clientCatchError';
+import httpRequest from '../../utils/httpRequest';
+import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+  const {setUser} = useAuthStore();
+  const [loading, setLoading] = React.useState(false);
+
+  const handleLogin = async(event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const inputData = Object.fromEntries(formData.entries());
+    
+    if(!inputData.email || !inputData.password) return toast.error("Please fill in all the fields.");
+
+    try {
+      setLoading(true);
+      const {data} = await httpRequest.post("/user/login", inputData);
+    
+      toast.success(data.message);
+      setUser(data.userData);
+      navigate("/");
+    } 
+    catch (error) {
+      return clientCatchError(error);  
+    }
+    finally {
+      setLoading(false);
+    }
+
+  };
+
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
       <div className="flex flex-col md:flex-row w-full max-w-5xl bg-white shadow-xl rounded-2xl overflow-hidden">
@@ -68,12 +102,12 @@ const Login: React.FC = () => {
           <h2 className="text-2xl font-bold mb-2 text-gray-900">Welcome Back</h2>
           <p className="text-gray-500 mb-8">Login to your adesGoaurd account</p>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleLogin}>
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                <input type="email" placeholder="Enter your email" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                <input type="email" name="email" placeholder="Enter your email" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
             </div>
             
@@ -81,16 +115,16 @@ const Login: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                <input type="password" placeholder="Enter your password" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                <input name="password" type="password" placeholder="Enter your password" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
               <div className="text-right mt-2">
                 <Link to="/forgot-password" className="text-sm text-indigo-600 hover:underline">Forgot password?</Link>
               </div>
             </div>
 
-            <button className="w-full flex justify-center items-center gap-1 bg-[#4F46E5] text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition">
+            <button disabled={loading} className="w-full flex justify-center items-center gap-1 bg-[#4F46E5] text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition">
               <ShieldUser/>
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
@@ -99,7 +133,7 @@ const Login: React.FC = () => {
             <div className="absolute top-1/2 left-0 w-full border-t border-gray-200 -z-10"></div>
           </div>
 
-          <button className="w-full border border-gray-300 py-2.5 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition">
+          <button disabled={loading} className="w-full border border-gray-300 py-2.5 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition">
             <FcGoogle size={24}/>
             <span>Continue with Google</span>
           </button>

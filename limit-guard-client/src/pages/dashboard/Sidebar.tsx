@@ -2,6 +2,7 @@ import {
   Activity,
   BarChart2,
   LayoutDashboard,
+  LoaderCircle,
   LogOut,
   Play,
   ShieldAlert,
@@ -10,6 +11,12 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import "animate.css";
 import { useEffect } from "react";
+import httpRequest from "../../utils/httpRequest";
+import { toast } from "sonner";
+import clientCatchError from "../../utils/clientCatchError";
+import { useState } from "react";
+import { useAuthStore } from "../../store/authStore";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   isSideBarOpen: boolean;
@@ -19,6 +26,9 @@ interface SidebarProps {
 const Sidebar = ({ isSideBarOpen, setIsSideBarOpen }: SidebarProps) => {
   const location = useLocation();
   const currentLocation = location.pathname.split("/").pop();
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const navigate = useNavigate();
+  const {  setUser } = useAuthStore();
 
   const sideBarItems = [
     { icon: LayoutDashboard, label: "Dashboard", route: "", active: false },
@@ -30,10 +40,27 @@ const Sidebar = ({ isSideBarOpen, setIsSideBarOpen }: SidebarProps) => {
   ];
 
   useEffect(() => {
-  if (window.innerWidth < 768) {
-    setIsSideBarOpen(false);
-  }
-}, [location.pathname, setIsSideBarOpen]);
+    if (window.innerWidth < 768) {
+      setIsSideBarOpen(false);
+    }
+  }, [location.pathname, setIsSideBarOpen]);
+
+  const handleLogout = async() => {
+    try {
+      setLogoutLoading(true);
+      const { data } = await httpRequest.get("/user/logout");
+      toast.success(data.message);
+      setUser(null);
+      navigate("/");
+    } 
+    catch (error) {
+      clientCatchError(error);
+    }
+    finally{
+      setLogoutLoading(false);
+    }
+  };
+
   return (
     <div className="h-full">
         <aside
@@ -76,13 +103,22 @@ const Sidebar = ({ isSideBarOpen, setIsSideBarOpen }: SidebarProps) => {
         </nav>
 
         <button
+          onClick={handleLogout}
           className={`mt-4 flex items-center bg-indigo-600 p-3 text-lg font-medium text-white transition-all hover:bg-red-600 ${
             isSideBarOpen
               ? "justify-center gap-3 rounded-xl"
               : "justify-center rounded-xl"
           }`}
         >
-          <LogOut className="h-5 w-5 shrink-0" />
+          {
+            logoutLoading ? (
+              <span className="animate-spin">
+                <LoaderCircle/>
+              </span>
+            ) : (
+              <LogOut className="h-5 w-5 shrink-0" />
+            )
+          }
 
           {isSideBarOpen && <span>Logout</span>}
         </button>

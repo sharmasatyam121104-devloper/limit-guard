@@ -10,47 +10,60 @@ import ApiPlayground from "../pages/dashboard/ApiPlayground";
 import Usage from "../pages/dashboard/Usage";
 import RateLimit from "../pages/dashboard/RateLimit";
 import Activity from "../pages/dashboard/Activity";
+import PublicRoutes from "../components/PublicRoutes";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/sign-up",
-    element: <Signup />,
-  },
-  {
-    path: "/",
-    element: <UserDashboardLayout />,
+    element: <PublicRoutes />,
     children: [
       {
-        index: true,
-        element: <Dashboard />,
+        path: "/login",
+        element: <Login />,
       },
       {
-        path: '/profile',
-        element: <Profile/>
+        path: "/signup",
+        element: <Signup />,
       },
-      {
-        path: '/playground',
-        element: <ApiPlayground/>
-      },
-      {
-        path: '/usage',
-        element: <Usage/>
-      },
-      {
-        path: '/rate-limit',
-        element: <RateLimit/>
-      },
-      {
-        path: '/activity',
-        element: <Activity/>
-      },
-
-    ]
+    ],
   },
+  {
+    element: <ProtectedRoute/>,
+    children: [
+      {
+        path: "/",
+        element: <UserDashboardLayout />,
+        children: [
+          {
+            index: true,
+            element: <Dashboard />,
+          },
+          {
+            path: '/profile',
+            element: <Profile/>
+          },
+          {
+            path: '/playground',
+            element: <ApiPlayground/>
+          },
+          {
+            path: '/usage',
+            element: <Usage/>
+          },
+          {
+            path: '/rate-limit',
+            element: <RateLimit/>
+          },
+          {
+            path: '/activity',
+            element: <Activity/>
+          },
+
+        ]
+    }
+    ],  
+  }
+,
   {
     path: "*",
     element: <NotFound />,
