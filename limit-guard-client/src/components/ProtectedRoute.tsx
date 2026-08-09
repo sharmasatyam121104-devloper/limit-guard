@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/authStore";
 import httpRequest from "../utils/httpRequest";
 import clientCatchError from "../utils/clientCatchError";
 import { Navigate, Outlet } from "react-router-dom";
+import LoadingPage from "./common/LoadingPage";
 
 const ProtectedRoute = () => {
   const {
@@ -42,7 +43,7 @@ const ProtectedRoute = () => {
     }, []);
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <LoadingPage/>;
     }
 
     if (!user) {

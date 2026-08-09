@@ -1,11 +1,12 @@
 import { useAuthStore } from "../store/authStore";
 import { Navigate, Outlet } from "react-router-dom";
+import LoadingPage from "./common/LoadingPage";
 
 const PublicRoutes = () => {
     const { user, isLoading } = useAuthStore();
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <LoadingPage/>;
     }
 
     if (user) {
