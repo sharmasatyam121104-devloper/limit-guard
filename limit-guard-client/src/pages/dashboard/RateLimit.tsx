@@ -1,4 +1,7 @@
 import { ShieldAlert, Activity, Hourglass, Inbox, AlertTriangle } from "lucide-react";
+import clientCatchError from "../../utils/clientCatchError";
+import httpRequest from "../../utils/httpRequest";
+import { useEffect } from "react";
 
 const RateLimit = () => {
   // Yeh data aapke API response se dynamic aayega
@@ -8,6 +11,20 @@ const RateLimit = () => {
     remaining: 6,
     resetIn: "42 sec"
   };
+
+  const fetchPlayGroundApiLists = async()=>{
+    try {
+      const {data} = await httpRequest.get("play-ground/api-list");
+      console.log(data);
+    } 
+    catch (error) {
+      clientCatchError(error);
+    }
+  }
+
+  useEffect(()=>{
+    fetchPlayGroundApiLists();
+  },[])
 
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto">

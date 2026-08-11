@@ -7,7 +7,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
 
-  setUser: (user: UserDataIntaerface | null) => void;
+  setUser: (user: Partial<UserDataIntaerface> | null) => void;
   setLoading: (value: boolean) => void;
 }
 
@@ -18,11 +18,25 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: true,
 
-      setUser: (user) =>
-        set({
-          user,
-          isAuthenticated: !!user,
-        }),
+    setUser: (userData) =>
+      set((state) => {
+        if (userData === null) {
+          return {
+            user: null,
+            isAuthenticated: false,
+          };
+        }
+
+        return {
+          user: state.user
+            ? {
+                ...state.user,
+                ...userData,
+              }
+            : null,
+          isAuthenticated: true,
+        };
+      }),
 
       setLoading: (value) =>
         set({

@@ -1,43 +1,108 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Play,  RefreshCw, Code2, Activity, ShieldAlert, Clock, Inbox } from "lucide-react";
+import httpRequest from "../../utils/httpRequest";
+import clientCatchError from "../../utils/clientCatchError";
+import type { PlayGroundApiListInterface } from "../../interfaces/playGround.interface";
+import type { RateLimitStatusDataInterface } from "../../interfaces/rateLimit.interface";
 
 const ApiPlayground = () => {
+  const [endpoints, setEndpoint] = useState<PlayGroundApiListInterface[] | null>(null);
+  const [selectedUrl, setSelectedUrl] = useState("/product");
+  const [statsApiData, setStatsApiData] = useState<RateLimitStatusDataInterface| null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [response, setResponse] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [selectedUrl, setSelectedUrl] = useState("/v1/stats");
+  const [counter, setCounter] = useState(0);
+  const [refreshLoading, setRefreshLoading] = useState(false);
 
-  const endpoints = [
-    { label: "Statistics", path: "/v1/stats" },
-    { label: "User Usage", path: "/v1/usage" },
-    { label: "Profile Data", path: "/v1/profile" },
-    { label: "Rate Limits", path: "/v1/rate-limit" },
-  ];
+
+  const handleCounter = ()=>{
+    setCounter(prev=>prev+1);
+  }
+  
+
+  
+  useEffect(()=>{
+    const fetchPlayGroundApiLists = async()=>{
+      try {
+        const {data} = await httpRequest.get("play-ground/api-list");
+        setEndpoint(data.routes);
+      } 
+      catch (error) {
+        clientCatchError(error);
+      }
+    }
+
+    fetchPlayGroundApiLists();
+  },[])
+
+  useEffect(()=>{
+    const fetchRateLimitStatus = async()=>{
+      try {
+        setRefreshLoading(true);
+        const {data} = await httpRequest.get('rate-limit');
+        setStatsApiData(data.data);
+      } 
+      catch (error) {
+        clientCatchError(error);
+      }
+      finally{
+        setRefreshLoading(false);
+      }
+    }
+
+    fetchRateLimitStatus();
+  },[counter])
 
   const stats = [
-    { label: "Status", value: "Active", icon: Activity, color: "text-green-500" },
-    { label: "Rate Limit", value: "10 / min", icon: ShieldAlert, color: "text-indigo-500" },
-    { label: "Remaining", value: "6", icon: Inbox, color: "text-blue-500" },
-    { label: "Reset In", value: "42s", icon: Clock, color: "text-orange-500" },
+    { label: "Status", value: statsApiData?.status, icon: Activity, color: "text-green-500" },
+    { label: "Rate Limit", value: statsApiData?.rateLimit, icon: ShieldAlert, color: "text-indigo-500" },
+    { label: "Remaining", value: statsApiData?.remainingRequests, icon: Inbox, color: "text-blue-500" },
+    { label: "Reset In", value: statsApiData?.windowReset, icon: Clock, color: "text-orange-500" },
   ];
 
-  const fetchDummyData = async () => {
-    setLoading(true);
-    setTimeout(() => {
-      setResponse({
-        status: 200,
-        endpoint: selectedUrl,
-        data: { id: "6a4f5c871ef4837639a2bbab", message: "Success" }
-      });
+  const fetchPlayGroundApiData = async () => {
+    try {
+      setLoading(true);
+      const { data } = await httpRequest.get(`play-ground${selectedUrl}`);
+      setResponse(data);
+      setCounter(prev=>prev+1);
+    } catch (error) {
+      clientCatchError(error);
+    }
+    finally{
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">API Playground</h1>
-        <p className="text-sm text-gray-500">Test and monitor your endpoint performance</p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">
+            API Playground
+          </h1>
+
+          <p className="text-sm text-gray-500">
+            Test and monitor your endpoint performance
+          </p>
+        </div>
+
+        <button
+          onClick={handleCounter}
+          className="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition shadow-sm disabled:opacity-50"
+        >
+          <RefreshCw
+            size={16}
+            className={refreshLoading ? "animate-spin" : ""}
+          />
+
+          <span>Refresh</span>
+
+          <span className="text-xs text-gray-400">
+            {/* {refreshTimer}s */}
+          </span>
+        </button>
       </div>
 
       {/* Stats Overview */}
@@ -68,18 +133,18 @@ const ApiPlayground = () => {
                 onChange={(e) => setSelectedUrl(e.target.value)}
                 className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 outline-none focus:border-indigo-500"
               >
-                {endpoints.map((ep) => (
-                  <option key={ep.path} value={ep.path}>{ep.label} ({ep.path})</option>
+                {endpoints?.map((ep:PlayGroundApiListInterface) => (
+                  <option key={ep.path} value={ep.path}>{ep.path}</option>
                 ))}
               </select>
             </div>
             
             <button 
-              onClick={fetchDummyData}
+              onClick={fetchPlayGroundApiData}
               disabled={loading}
               className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition"
             >
-              {loading ? <RefreshCw className="animate-spin" size={18} /> : <Play size={18} />}
+              {refreshLoading ? <RefreshCw className="animate-spin" size={18} /> : <Play size={18} />}
               {loading ? "Sending..." : "Send Request"}
             </button>
           </div>

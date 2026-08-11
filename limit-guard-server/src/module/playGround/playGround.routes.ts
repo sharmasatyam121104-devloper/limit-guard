@@ -8,13 +8,13 @@ const PlayGroundRouter = Router()
 
 PlayGroundRouter.use(authMiddleware)
 PlayGroundRouter.use(activityMiddleware)
-PlayGroundRouter.use(rateLimiter)
 
-PlayGroundRouter.get('/product', getProducts)
-PlayGroundRouter.get('/student', getStudents)
-PlayGroundRouter.get('/employee', getEmployees)
-PlayGroundRouter.get('/movie', getMovies)
-PlayGroundRouter.get('/book', getBooks)
-PlayGroundRouter.get('/api-list', getApiList)
+PlayGroundRouter.get("/product", rateLimiter, getProducts);
+PlayGroundRouter.get("/student", rateLimiter, getStudents);
+PlayGroundRouter.get("/employee", rateLimiter, getEmployees);
+PlayGroundRouter.get("/movie", rateLimiter, getMovies);
+PlayGroundRouter.get("/book", rateLimiter, getBooks);
+
+PlayGroundRouter.get("/api-list", getApiList);
 
 export default PlayGroundRouter;
