@@ -96,7 +96,7 @@ const Login: React.FC = () => {
         <div className="p-12 w-full md:w-7/12 flex flex-col justify-center">
           <div className="flex justify-end mb-8 text-sm">
             <span className="text-gray-600">Don't have an account? </span>
-            <a href="/sign-up" className="ml-1 text-[#4F46E5] hover:underline font-semibold">Sign up</a>
+            <a href="/signup" className="ml-1 text-[#4F46E5] hover:underline font-semibold">Sign up</a>
           </div>
 
           <h2 className="text-2xl font-bold mb-2 text-gray-900">Welcome Back</h2>

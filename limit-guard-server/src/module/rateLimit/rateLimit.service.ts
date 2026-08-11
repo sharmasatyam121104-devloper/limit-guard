@@ -65,9 +65,9 @@ export const rateLimiter = async (req: SessionInterface, res: Response, next: Ne
 
 
 
-export const getRateLimitDetails = async (req: SessionInterface, res: Response) => {
-  try {
-    const key = `rate:${req.userId}`;
+export const getRateLimitDetails = async (userId: string) => {
+  
+    const key = `rate:${userId}`;
 
     const currentTime = Math.floor(Date.now() / 1000);
     const windowStart = currentTime - WINDOW_SIZE;
@@ -88,8 +88,7 @@ export const getRateLimitDetails = async (req: SessionInterface, res: Response) 
       resetIn = 0;
     }
 
-    res.status(200).json({
-      success: true,
+    return {
       data: {
         status: used >= MAX_REQUESTS ? "Blocked" : "Active",
         rateLimit: `${MAX_REQUESTS} / minute`,
@@ -97,12 +96,5 @@ export const getRateLimitDetails = async (req: SessionInterface, res: Response) 
         remainingRequests: remaining,
         windowReset: `${resetIn} sec`,
       },
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch rate limit details",
-    });
-  }
+    };
 };

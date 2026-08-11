@@ -18,3 +18,9 @@ export interface LoginInputDataInterface {
   email: string;
   password: string;
 }
+
+export interface SignupInputDataInterface {
+  fullname: string;
+  email: string;
+  password: string;
+}

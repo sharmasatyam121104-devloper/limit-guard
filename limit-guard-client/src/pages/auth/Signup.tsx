@@ -11,9 +11,38 @@ import {
   Rocket
 } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import httpRequest from '../../utils/httpRequest';
+import clientCatchError from '../../utils/clientCatchError';
 
 const Signup: React.FC = () => {
+
+  const [loading, setLoading] = React.useState(false);
+  const navigate = useNavigate();
+
+  const handleSignup = async(event: React.FormEvent<HTMLFormElement>)=>{
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const inputData = Object.fromEntries(formData.entries());
+
+    if(!inputData.email || !inputData.password || !inputData.fullname) return toast.error("Please fill in all the fields.");
+
+    try {
+      setLoading(true);
+      const {data} = await httpRequest.post("/user/signup", inputData);
+      
+      toast.success(data.message);
+      navigate("/login");
+    } 
+    catch (error) {
+      return clientCatchError(error);  
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
       <div className="flex flex-col md:flex-row w-full max-w-5xl bg-white shadow-xl rounded-2xl overflow-hidden">
@@ -64,12 +93,12 @@ const Signup: React.FC = () => {
           <h2 className="text-2xl font-bold mb-2 text-gray-900">Create Account</h2>
           <p className="text-gray-500 mb-8">Join LimitGuard and protect your APIs</p>
 
-          <form className="space-y-4">
+          <form className="space-y-4" onSubmit={handleSignup}>
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
               <div className="relative">
                 <UserPlus className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                <input type="text" placeholder="John Doe" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                <input name='fullname' type="text" placeholder="John Doe" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
             </div>
 
@@ -77,7 +106,7 @@ const Signup: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                <input type="email" placeholder="john@example.com" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                <input name='email' type="email" placeholder="john@example.com" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
             </div>
             
@@ -85,12 +114,12 @@ const Signup: React.FC = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-2.5 text-gray-400" size={18} />
-                <input type="password" placeholder="••••••••" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
+                <input name='password' type="password" placeholder="••••••••" className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
             </div>
 
-            <button className="w-full flex justify-center items-center gap-2 bg-[#4F46E5] text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition mt-4">
-              Create Account
+            <button disabled={loading} className="w-full flex justify-center items-center gap-2 bg-[#4F46E5] text-white py-2.5 rounded-lg font-semibold hover:bg-indigo-700 transition mt-4">
+              {loading ? "Loading..." : "Create Account"}
             </button>
           </form>
 
@@ -99,7 +128,7 @@ const Signup: React.FC = () => {
             <div className="absolute top-1/2 left-0 w-full border-t border-gray-200 -z-10"></div>
           </div>
 
-          <button className="w-full border border-gray-300 py-2.5 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition">
+          <button disabled={loading} className="w-full border border-gray-300 py-2.5 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-50 transition">
             <FcGoogle size={24}/>
             <span>Sign up with Google</span>
           </button>

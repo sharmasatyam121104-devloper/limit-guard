@@ -1,6 +1,6 @@
 import { Router } from "express";
 import authMiddleware from "../../middleware/authMiddleware";
-import { getRateLimitDetails } from "./rateLimit.service";
+import { getRateLimitDetails } from "./rateLimit.controller";
 
 const RateLimiterRouter = Router();
 
