@@ -54,11 +54,20 @@ const ApiPlayground = () => {
     fetchRateLimitStatus();
   },[counter])
 
+  console.log(statsApiData);
+
   const stats = [
-    { label: "Status", value: statsApiData?.status, icon: Activity, color: "text-green-500" },
-    { label: "Rate Limit", value: statsApiData?.rateLimit, icon: ShieldAlert, color: "text-indigo-500" },
-    { label: "Remaining", value: statsApiData?.remainingRequests, icon: Inbox, color: "text-blue-500" },
-    { label: "Reset In", value: statsApiData?.windowReset, icon: Clock, color: "text-orange-500" },
+    { label: "Status", value: statsApiData?.status || "loading..", icon: Activity, color: "text-green-500" },
+    { label: "Rate Limit", value: statsApiData?.rateLimit || "loading..", icon: ShieldAlert, color: "text-indigo-500" },
+    {
+      label: "Remaining",
+      value:
+        statsApiData?.remainingRequests ??
+        (statsApiData?.usedRequests === 5 ? "0" : "loading"),
+      icon: Inbox,
+      color: "text-blue-500"
+    },
+    { label: "Reset In", value: statsApiData?.windowReset   || "loading..", icon: Clock, color: "text-orange-500" },
   ];
 
   const fetchPlayGroundApiData = async () => {

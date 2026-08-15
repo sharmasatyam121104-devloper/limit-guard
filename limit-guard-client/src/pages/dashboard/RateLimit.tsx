@@ -1,29 +1,39 @@
 import { ShieldAlert, Activity, Hourglass, Inbox, AlertTriangle } from "lucide-react";
 import clientCatchError from "../../utils/clientCatchError";
 import httpRequest from "../../utils/httpRequest";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import type { RateLimitStatusDataInterface } from "../../interfaces/rateLimit.interface";
 
 const RateLimit = () => {
-  // Yeh data aapke API response se dynamic aayega
+
+  // const [counter, setCounter] = useState(0);
+  const [liveStatusData, setLiveStatusData] = useState<RateLimitStatusDataInterface| null>(null);
+
+
   const liveStatus = {
-    status: "Active",
-    rateLimit: "10 / minute",
-    remaining: 6,
-    resetIn: "42 sec"
+    status: liveStatusData?.status || "loading..",
+    rateLimit: liveStatusData?.rateLimit || "loading..",
+    remaining: liveStatusData?.remainingRequests || "loading..",
+    resetIn: liveStatusData?.windowReset || "loading..",
   };
 
-  const fetchPlayGroundApiLists = async()=>{
-    try {
-      const {data} = await httpRequest.get("play-ground/api-list");
-      console.log(data);
-    } 
-    catch (error) {
-      clientCatchError(error);
-    }
-  }
 
   useEffect(()=>{
-    fetchPlayGroundApiLists();
+    const fetchRateLimitStatus = async()=>{
+      try {
+        // setRefreshLoading(true);
+        const {data} = await httpRequest.get('rate-limit');
+        setLiveStatusData(data.data);
+      } 
+      catch (error) {
+        clientCatchError(error);
+      }
+      finally{
+        // setRefreshLoading(false);
+      }
+    }
+
+    fetchRateLimitStatus();
   },[])
 
   return (
@@ -62,7 +72,7 @@ const RateLimit = () => {
       </div>
 
       {/* Warning section agar limit khatam hone wali ho */}
-      {liveStatus.remaining < 3 && (
+      {Number(liveStatus.remaining) < 3 && (
         <div className="bg-amber-50 border border-amber-200 text-amber-800 p-4 rounded-2xl flex items-center gap-3">
           <AlertTriangle size={20} />
           <p className="text-sm font-medium">You are running low on requests. Please wait for the window reset.</p>
