@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import redis from "../../config/redis.config";
 import { SessionInterface } from "../user/user.interface";
+import { usageData } from "../usage/usage.service";
 
 const WINDOW_SIZE = 60; // seconds
 const MAX_REQUESTS = 5;
@@ -8,7 +9,7 @@ const MAX_REQUESTS = 5;
 export const rateLimiter = async (req: SessionInterface, res: Response, next: NextFunction) => {
   try {
     const key = `rate:${req.userId}`;
-
+  
     const currentTime = Math.floor(Date.now() / 1000);
     const windowStart = currentTime - WINDOW_SIZE;
 
@@ -17,7 +18,6 @@ export const rateLimiter = async (req: SessionInterface, res: Response, next: Ne
 
     // Current requests
     let requestCount = await redis.zcard(key);
-
     // Limit reached
     if (requestCount >= MAX_REQUESTS) {
       const resetIn = await redis.ttl(key);
@@ -57,6 +57,8 @@ export const rateLimiter = async (req: SessionInterface, res: Response, next: Ne
       resetIn: await redis.ttl(key),
     };
 
+     res.locals.requestStartTime = Date.now();
+     
     next();
   } catch (error) {
     next(error);

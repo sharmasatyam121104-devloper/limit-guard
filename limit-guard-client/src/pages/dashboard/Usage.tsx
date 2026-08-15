@@ -1,18 +1,85 @@
 import { BarChart2, ShieldAlert, Clock } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import clientCatchError from "../../utils/clientCatchError";
+import httpRequest from "../../utils/httpRequest";
+import type { UsageDataItem } from "../../interfaces/usage.interafce";
 
 const Usage = () => {
   // Dummy Data
-  const stats = [
-    { title: "Total Requests", value: "128", change: "+12%", icon: BarChart2, color: "text-indigo-600" },
-    { title: "Blocked Requests", value: "3", change: "0%", icon: ShieldAlert, color: "text-red-500" },
-    { title: "Avg Latency", value: "142ms", change: "-5ms", icon: Clock, color: "text-emerald-500" },
-  ];
 
-  const topEndpoints = [
-    { path: "/products", count: 84 },
-    { path: "/users", count: 32 },
-    { path: "/auth/login", count: 12 },
+
+  const [usageData, setUsagedata] = useState<UsageDataItem[] | []>([]);
+
+const getTopEndpoints = (usageData: UsageDataItem[]) => {
+  const endpoints = new Set(
+    usageData.map((item) =>item.endpointName)
+  );
+
+  const endPointData = Array.from(endpoints).map((endpoint) => {
+    const data = usageData
+      .filter((item) => item.endpointName === endpoint)
+      .map((item) => ({
+        status: item.status,
+        statusCode: item.statusCode,
+        latency: Number(item.latency),
+      }));
+
+    return {
+      path: endpoint,
+      count: data.length,
+      data,
+    };
+  });
+
+  endPointData.sort((a, b) => b.count - a.count);
+  return endPointData;
+};
+
+
+const topEndpointsData = useMemo(() => {
+  return getTopEndpoints(usageData);
+}, [usageData]);
+
+
+const avgLatency = useMemo(() => {
+  const latencies = topEndpointsData
+    .flatMap((item) => item.data)
+    .map((item) => item.latency)
+    .filter((latency) => latency !== null);
+
+  if (latencies.length === 0) return 0;
+
+  return Math.round(
+    latencies.reduce(
+      (acc, latency) => acc + Number(latency),
+      0
+    ) / latencies.length
+  );
+}, [topEndpointsData]);
+
+
+
+  const stats = [
+    { title: "Total Requests", value: topEndpointsData.reduce((acc, curr) => acc + curr.count, 0) , change: "+12%", icon: BarChart2, color: "text-indigo-600" },
+    { title: "Blocked Requests", value: topEndpointsData.reduce((acc, curr) => acc + curr.data.filter((item) => item.status === "Failed").length, 0), change: "0%", icon: ShieldAlert, color: "text-red-500" },
+    { title: "Avg Latency", value: `${avgLatency}ms`, change: "-5ms", icon: Clock, color: "text-emerald-500" },
   ];
+  
+
+  useEffect(() => {
+    const fetchUsages = async () => {
+      try {
+        const { data } = await httpRequest.get("/usage");
+        setUsagedata(data.data);
+      }
+      catch (error) {
+        clientCatchError(error);  
+      }
+    }
+
+    fetchUsages();
+  },[]);
+
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto">
@@ -29,7 +96,7 @@ const Usage = () => {
               <div className={`p-3 rounded-2xl bg-gray-50 ${stat.color}`}>
                 <stat.icon size={24} />
               </div>
-              <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">{stat.change}</span>
+              {/* <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">{stat.change}</span> */}
             </div>
             <p className="text-sm text-gray-500 font-medium">{stat.title}</p>
             <h3 className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</h3>
@@ -43,7 +110,7 @@ const Usage = () => {
           <h3 className="text-lg font-bold text-gray-900">Top Endpoints</h3>
         </div>
         <div className="p-6 space-y-6">
-          {topEndpoints.map((ep, i) => (
+          {topEndpointsData.map((ep, i) => (
             <div key={i} className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="font-mono text-gray-700 bg-gray-100 px-2 py-0.5 rounded">{ep.path}</span>

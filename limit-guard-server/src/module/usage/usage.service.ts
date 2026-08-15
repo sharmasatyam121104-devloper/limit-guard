@@ -12,6 +12,9 @@ export const usageData = async (userId: string, endpointData: endpointInterface)
 };
 
 export const getUsageData = async (userId: string) => {
-    const data = await redis.lrange(`usage:${userId}`, 0, -1);
-    return { data };
+  const data = await redis.lrange(`usage:${userId}`, 0, -1);
+
+  const parsedData = data.map((item) => JSON.parse(item));
+
+  return { data: parsedData };
 };

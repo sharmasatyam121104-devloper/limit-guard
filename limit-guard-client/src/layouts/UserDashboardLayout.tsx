@@ -23,7 +23,7 @@ const UserDashboardLayout = () => {
           <Outlet />
 
           <footer className="mt-8 border-t pt-4 text-center text-xs sm:text-sm text-[#6B7280]">
-            © 2025 adesGoaurd. All rights reserved.
+            © 2025 LimitGuard. All rights reserved.
           </footer>
         </main>
       </div>
