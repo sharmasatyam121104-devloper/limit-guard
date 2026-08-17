@@ -1,14 +1,14 @@
 import { Terminal, Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { ActivityLogDataItem } from "../../interfaces/activities.interface";
+import clientCatchError from "../../utils/clientCatchError";
+import httpRequest from "../../utils/httpRequest";
+import moment from "moment"
 
 const Activity = () => {
   // Dummy Activity Data
-  const activities = [
-    { id: 1, action: "API Request: GET /v1/stats", time: "Just now", status: "success" },
-    { id: 2, action: "User Profile Updated", time: "2 hours ago", status: "success" },
-    { id: 3, action: "API Request: GET /v1/products", time: "5 hours ago", status: "success" },
-    { id: 4, action: "Unauthorized access attempt", time: "1 day ago", status: "failed" },
-    { id: 5, action: "Password change requested", time: "2 days ago", status: "warning" },
-  ];
+  const [activityData, setActivityData] = useState<ActivityLogDataItem[]>([])
+
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -18,6 +18,22 @@ const Activity = () => {
       default: return <Clock className="text-gray-400" size={18} />;
     }
   };
+
+
+  
+  useEffect(()=>{
+    const fetchActivityData = async()=>{
+      try {
+        const {data} = await httpRequest.get('/activity/recent')
+        setActivityData(data.data)
+      } 
+      catch (error) {
+       return clientCatchError(error) 
+      }
+    }
+
+    fetchActivityData()
+  },[])
 
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto">
@@ -33,15 +49,15 @@ const Activity = () => {
         </div>
 
         <div className="divide-y divide-gray-100">
-          {activities.map((act) => (
-            <div key={act.id} className="p-4 md:p-6 flex items-center justify-between hover:bg-gray-50 transition">
+          {activityData.map((act, index: number) => (
+            <div key={index} className="p-4 md:p-6 flex items-center justify-between hover:bg-gray-50 transition">
               <div className="flex items-center gap-4">
                 <div className="bg-gray-100 p-2 rounded-full">
                   {getStatusIcon(act.status)}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-800">{act.action}</p>
-                  <p className="text-xs text-gray-400">{act.time}</p>
+                  <p className="text-sm font-semibold text-gray-800">{act.type}: /{act.message.split('/').pop()}</p>
+                  <p className="text-xs text-gray-400">{moment(act.createdAt).startOf('hour').fromNow()}</p>
                 </div>
               </div>
               
