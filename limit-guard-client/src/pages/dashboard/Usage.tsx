@@ -3,12 +3,14 @@ import { useEffect, useMemo, useState } from "react";
 import clientCatchError from "../../utils/clientCatchError";
 import httpRequest from "../../utils/httpRequest";
 import type { UsageDataItem } from "../../interfaces/usage.interafce";
+import UsageSkeleton from "../../components/skeletons/UsageSkeleton";
 
 const Usage = () => {
   // Dummy Data
 
 
   const [usageData, setUsagedata] = useState<UsageDataItem[] | []>([]);
+  const [loading, setLoading] = useState(false);
 
 const getTopEndpoints = (usageData: UsageDataItem[]) => {
   const endpoints = new Set(
@@ -69,16 +71,22 @@ const avgLatency = useMemo(() => {
   useEffect(() => {
     const fetchUsages = async () => {
       try {
+        setLoading(true);
         const { data } = await httpRequest.get("/usage");
         setUsagedata(data.data);
       }
       catch (error) {
         clientCatchError(error);  
       }
+      finally{
+        setLoading(false);
+      }
     }
 
     fetchUsages();
   },[]);
+
+  if(loading) return <UsageSkeleton/>
 
 
   return (

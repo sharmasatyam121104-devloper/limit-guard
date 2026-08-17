@@ -4,6 +4,7 @@ import httpRequest from "../../utils/httpRequest";
 import clientCatchError from "../../utils/clientCatchError";
 import type { PlayGroundApiListInterface } from "../../interfaces/playGround.interface";
 import type { RateLimitStatusDataInterface } from "../../interfaces/rateLimit.interface";
+import ApiPlaygroundSkeleton from "../../components/skeletons/ApiPlaygroundSkeleton";
 
 const ApiPlayground = () => {
   const [endpoints, setEndpoint] = useState<PlayGroundApiListInterface[] | null>(null);
@@ -83,6 +84,8 @@ const ApiPlayground = () => {
       setLoading(false);
     }
   };
+
+  if(loading) return <ApiPlaygroundSkeleton/>
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto">

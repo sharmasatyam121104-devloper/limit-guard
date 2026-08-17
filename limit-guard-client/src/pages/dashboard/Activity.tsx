@@ -4,10 +4,12 @@ import type { ActivityLogDataItem } from "../../interfaces/activities.interface"
 import clientCatchError from "../../utils/clientCatchError";
 import httpRequest from "../../utils/httpRequest";
 import moment from "moment"
+import ActivityLogsSkeleton from "../../components/skeletons/ActivityLogsSkeleton";
 
 const Activity = () => {
   // Dummy Activity Data
   const [activityData, setActivityData] = useState<ActivityLogDataItem[]>([])
+  const [loading, setLoading] = useState(false)
 
 
   const getStatusIcon = (status: string) => {
@@ -24,16 +26,22 @@ const Activity = () => {
   useEffect(()=>{
     const fetchActivityData = async()=>{
       try {
+        setLoading(true)
         const {data} = await httpRequest.get('/activity/recent')
         setActivityData(data.data)
       } 
       catch (error) {
        return clientCatchError(error) 
       }
+      finally{
+        setLoading(false)
+      }
     }
 
     fetchActivityData()
   },[])
+
+  if(loading) return <ActivityLogsSkeleton/>
 
   return (
     <div className="p-4 md:p-8 max-w-4xl mx-auto">

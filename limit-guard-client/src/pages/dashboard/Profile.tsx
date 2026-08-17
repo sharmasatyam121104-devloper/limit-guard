@@ -4,6 +4,7 @@ import { useAuthStore } from "../../store/authStore";
 import { toast } from "sonner";
 import clientCatchError from "../../utils/clientCatchError";
 import httpRequest from "../../utils/httpRequest";
+import ProfileSkeleton from "../../components/skeletons/ProfileSkeleton";
 
 const Profile = () => {
   const { user, setUser } = useAuthStore();
@@ -32,6 +33,8 @@ const Profile = () => {
       setIsEditing(false);
     }
   }
+
+  if(loading) return <ProfileSkeleton/>
 
   return (
     <div className="min-h-screen bg-gray-50/50 p-4 md:p-8">
