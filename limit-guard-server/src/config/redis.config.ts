@@ -20,6 +20,7 @@ redis.on("connect", () => console.log("Redis Connected"));
 redis.on("error", (error: unknown) => {
     if(error instanceof Error){
         console.log(error);
+        process.exit(1);
     }
 });
 

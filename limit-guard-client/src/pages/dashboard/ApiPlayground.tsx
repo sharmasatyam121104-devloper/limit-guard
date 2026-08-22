@@ -63,7 +63,7 @@ const ApiPlayground = () => {
   // console.log(statsApiData);
 
   const stats = [
-    { label: "Status", value: statsApiData?.status || "loading..", icon: Activity, color: "text-green-500" },
+    { label: "Status", value: statsApiData?.status || "loading..", icon: Activity, color: statsApiData?.status === "success" ? "text-emerald-500" : "text-green-500" },
     { label: "Rate Limit", value: statsApiData?.rateLimit || "loading..", icon: ShieldAlert, color: "text-indigo-500" },
     {
       label: "Remaining",

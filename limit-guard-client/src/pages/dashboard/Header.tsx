@@ -18,7 +18,7 @@ const Header = ({ isSideBarOpen, setIsSideBarOpen }: HeaderProps) => {
   const { user,  setUser } = useAuthStore();
   const navigate = useNavigate();
 
-    const handleLogout = async() => {
+  const handleLogout = async() => {
     try {
       setLogoutLoading(true);
       const { data } = await httpRequest.get("/user/logout");
@@ -68,7 +68,7 @@ const Header = ({ isSideBarOpen, setIsSideBarOpen }: HeaderProps) => {
             </div>
 
             {/* Hide name on mobile */}
-            <span className="hidden sm:block text-sm font-medium whitespace-nowrap">
+            <span className="hidden sm:block text-sm font-medium whitespace-nowrap capitalize">
               {user?.fullname}
             </span>
 

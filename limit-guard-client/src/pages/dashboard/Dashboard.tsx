@@ -229,7 +229,7 @@ const Dashboard = () => {
                       <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
                         <span
                           className={`w-fit rounded-md px-2 py-0.5 text-[10px] font-bold uppercase ${
-                            act.type === "Success"
+                            act.status === "success"
                               ? "bg-green-100 text-green-700"
                               : "bg-red-100 text-red-700"
                           }`}
@@ -249,7 +249,7 @@ const Dashboard = () => {
 
                     {/* Status */}
                     <div className="shrink-0">
-                      {act.status === "Success" ? (
+                      {act.status === "success" ? (
                         <div className="flex h-7 w-7 items-center justify-center rounded-full bg-green-50">
                           <CheckCircle2 className="h-4 w-4 text-[#22C55E]" />
                         </div>
