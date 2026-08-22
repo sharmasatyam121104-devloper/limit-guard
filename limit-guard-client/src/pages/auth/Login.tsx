@@ -1,6 +1,5 @@
 
 import Logo from '../../components/common/Logo';
-
 import React from 'react';
 
 import { 
@@ -24,7 +23,7 @@ import { useAuthStore } from '../../store/authStore';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const {setUser, user} = useAuthStore();
+  const {setUser} = useAuthStore();
   const [loading, setLoading] = React.useState(false);
 
   const handleLogin = async(event: React.FormEvent<HTMLFormElement>) => {

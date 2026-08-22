@@ -1,6 +1,5 @@
 import { NextFunction, Response } from "express";
 import asyncHandler from "./asyncHandler";
-import createError from "../utils/createError";
 import jwt, { JwtPayload } from "jsonwebtoken"
 import { SessionInterface } from "../module/user/user.interface";
 import redis from "../config/redis.config";
@@ -17,7 +16,11 @@ const authMiddleware = asyncHandler (async(req: SessionInterface, res: Response,
     const {access_token} = req.cookies;
 
     if(!access_token){
-        throw createError(404, "access_token not found.")
+        return res.status(401).json({
+        "success": false,
+        "code": "AUTH_TOKEN_MISSING",
+        "message": "Access token not found"
+        });
     }
 
     const isBlacklisted = await redis.get(
@@ -37,7 +40,11 @@ const authMiddleware = asyncHandler (async(req: SessionInterface, res: Response,
     ) as AuthPayload;
 
     if(!decoded){
-        throw createError(401, "Unauthorized .") 
+        return res.status(401).json({
+            "success": false,
+            "code": "AUTH_TOKEN_INVALID",
+            "message": "Invalid access token"
+        }) 
     }
 
     req.userId = decoded.id

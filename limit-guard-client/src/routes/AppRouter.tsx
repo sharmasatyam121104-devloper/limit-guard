@@ -12,6 +12,7 @@ import RateLimit from "../pages/dashboard/RateLimit";
 import Activity from "../pages/dashboard/Activity";
 import PublicRoutes from "../components/PublicRoutes";
 import ProtectedRoute from "../components/ProtectedRoute";
+import Notification from "../pages/dashboard/Notification";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
             path: '/activity',
             element: <Activity/>
           },
+          {
+            path: "/notification",
+            element: <Notification />,
+          }
 
         ]
     }

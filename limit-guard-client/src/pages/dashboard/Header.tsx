@@ -1,7 +1,11 @@
 import { Bell, ChevronDown, LogOut, PanelLeft, User } from "lucide-react";
 import Logo from "../../components/common/Logo";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore";
+import httpRequest from "../../utils/httpRequest";
+import { toast } from "sonner";
+import clientCatchError from "../../utils/clientCatchError";
 
 interface HeaderProps {
   isSideBarOpen: boolean;
@@ -10,6 +14,25 @@ interface HeaderProps {
 
 const Header = ({ isSideBarOpen, setIsSideBarOpen }: HeaderProps) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [logoutLoading, setLogoutLoading] = useState(false);
+  const { user,  setUser } = useAuthStore();
+  const navigate = useNavigate();
+
+    const handleLogout = async() => {
+    try {
+      setLogoutLoading(true);
+      const { data } = await httpRequest.get("/user/logout");
+      toast.success(data.message);
+      setUser(null);
+      navigate("/");
+    } 
+    catch (error) {
+      clientCatchError(error);
+    }
+    finally{
+      setLogoutLoading(false);
+    }
+  };
 
   return (
     <div
@@ -31,9 +54,9 @@ const Header = ({ isSideBarOpen, setIsSideBarOpen }: HeaderProps) => {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3 md:gap-4">
-        <button className="rounded-full p-2 hover:bg-white/10 transition">
+        <Link to="/notification" className="rounded-full p-2 hover:bg-white/10 transition">
           <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-        </button>
+        </Link>
 
         <div className="relative">
           <button
@@ -41,12 +64,12 @@ const Header = ({ isSideBarOpen, setIsSideBarOpen }: HeaderProps) => {
             className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-2 py-1 hover:shadow-md transition"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
-              S
+              {user?.fullname?.charAt(0).toUpperCase()}
             </div>
 
             {/* Hide name on mobile */}
             <span className="hidden sm:block text-sm font-medium whitespace-nowrap">
-              Satyam
+              {user?.fullname}
             </span>
 
             <ChevronDown
@@ -59,12 +82,12 @@ const Header = ({ isSideBarOpen, setIsSideBarOpen }: HeaderProps) => {
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-56 sm:w-60 rounded-xl border border-gray-200 bg-white shadow-xl overflow-hidden z-50">
               <div className="border-b px-4 py-3">
-                <p className="truncate text-sm font-semibold text-gray-800">
-                  Satyam Sharma
+                <p className="truncate text-sm font-semibold text-gray-800 capitalize">
+                  {user?.fullname}
                 </p>
 
                 <p className="truncate text-xs text-gray-500">
-                  satyam@gmail.com
+                  {user?.email}
                 </p>
               </div>
 
@@ -73,9 +96,9 @@ const Header = ({ isSideBarOpen, setIsSideBarOpen }: HeaderProps) => {
                 Profile
               </Link>
 
-              <button className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-600 transition hover:bg-red-50">
-                <LogOut className="h-4 w-4" />
-                Logout
+              <button  onClick={handleLogout} className="flex w-full items-center gap-3 px-4 py-3 text-sm text-red-600 transition hover:bg-red-50">
+                <LogOut className="h-4 w-4"/>
+                {logoutLoading ? "Logging out..." : "Logout"}
               </button>
             </div>
           )}
