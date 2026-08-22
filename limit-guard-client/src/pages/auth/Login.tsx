@@ -24,7 +24,7 @@ import { useAuthStore } from '../../store/authStore';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
-  const {setUser} = useAuthStore();
+  const {setUser, user} = useAuthStore();
   const [loading, setLoading] = React.useState(false);
 
   const handleLogin = async(event: React.FormEvent<HTMLFormElement>) => {

@@ -22,7 +22,7 @@ const RateLimit = () => {
     const fetchRateLimitStatus = async()=>{
       try {
         // setRefreshLoading(true);
-        const {data} = await httpRequest.get('rate-limit');
+        const {data} = await httpRequest.get('/rate-limit');
         setLiveStatusData(data.data);
       } 
       catch (error) {

@@ -15,6 +15,7 @@ const ApiPlayground = () => {
   const [loading, setLoading] = useState(false);
   const [counter, setCounter] = useState(0);
   const [refreshLoading, setRefreshLoading] = useState(false);
+  const [pageDataLoading, setPageDataLoading] = useState(false);
 
 
   const handleCounter = ()=>{
@@ -26,11 +27,15 @@ const ApiPlayground = () => {
   useEffect(()=>{
     const fetchPlayGroundApiLists = async()=>{
       try {
+        setPageDataLoading(true);
         const {data} = await httpRequest.get("play-ground/api-list");
         setEndpoint(data.routes);
       } 
       catch (error) {
         clientCatchError(error);
+      }
+      finally{
+        setPageDataLoading(false);
       }
     }
 
@@ -55,7 +60,7 @@ const ApiPlayground = () => {
     fetchRateLimitStatus();
   },[counter])
 
-  console.log(statsApiData);
+  // console.log(statsApiData);
 
   const stats = [
     { label: "Status", value: statsApiData?.status || "loading..", icon: Activity, color: "text-green-500" },
@@ -85,7 +90,7 @@ const ApiPlayground = () => {
     }
   };
 
-  if(loading) return <ApiPlaygroundSkeleton/>
+  if(pageDataLoading) return <ApiPlaygroundSkeleton/>
 
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto">

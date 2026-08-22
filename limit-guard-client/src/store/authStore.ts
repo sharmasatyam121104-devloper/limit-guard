@@ -28,12 +28,10 @@ export const useAuthStore = create<AuthState>()(
         }
 
         return {
-          user: state.user
-            ? {
-                ...state.user,
-                ...userData,
-              }
-            : null,
+          user: {
+            ...state.user,
+            ...userData,
+          } as UserDataIntaerface,
           isAuthenticated: true,
         };
       }),
